@@ -22,4 +22,4 @@ for (const line of lines) {
   }
 }
 
-console.log(answer) // 51°16'41.8"N 0°45'24.1"W
+console.log(answer) // 51°16'41.8"N 0°45'24.1"W (Farnborough International Exhibition and Conference Centre)

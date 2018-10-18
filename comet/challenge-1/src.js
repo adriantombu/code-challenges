@@ -1,7 +1,7 @@
   let r = []
   let m = []
   let g = input.grid
-  let t = input.text.replace(/[ .,\/#!?$%\^&\*;:{}=\-_’'"`'~()]/g,'').padEnd(g[0] * g[1], 'X')
+  let t = input.text.replace(/[ .,&@\/\]\[#!?$%\^&\*;:{}=\-_’'"`'~()]/g,"").padEnd(g[0] * g[1], 'X')
   for(let i=0; i< g[1]; i++) {
     m[i] = t.slice(i * g[0], i * g[0] + g[0]).split('')
   }

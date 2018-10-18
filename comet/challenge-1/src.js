@@ -1,17 +1,17 @@
   let r = []
   let m = []
-  let g = input.grid
-  let t = input.text.replace(/[ .,&@\/\]\[#!?$%\^&\*;:{}=\-_’'"`'~()]/g,"").padEnd(g[0] * g[1], 'X')
-  for(let i=0; i< g[1]; i++) {
-    m[i] = t.slice(i * g[0], i * g[0] + g[0]).split('')
+  let [w, h] = input.grid
+  let t = input.text.replace(/[ .,&@\/\]\[#!?$%\^&\*;:{}=\-_’'"`'~()]/g,"").padEnd(w * h, 'X')
+  for(let i=0; i< h; i++) {
+    m[i] = t.slice(i * w, i * w + w).split('')
   }
 
   let d = 'd'
   let e = 0
 
   let xm = ym = 0
-  let xx = g[1] - 1
-  let yx = g[0] - 1
+  let xx = h - 1
+  let yx = w - 1
 
   let x = xm
   let y = yx

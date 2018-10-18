@@ -1,0 +1,34 @@
+{
+  "name": "@adriantombu/early-birds",
+  "version": "1.0.0",
+  "description": "A random Node.js API technical test",
+  "repository": "https://github.com/adriantombu/early-birds",
+  "author": "Adrian Tombu <adrian@otso.fr> (https://otso.fr)",
+  "license": "UNLICENSED",
+  "main": "app/index.js",
+  "engines": {
+    "node": "8.x"
+  },
+  "scripts": {
+    "start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/index.js",
+    "worker": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/worker.js",
+    "debug": "forever -w -m 5 --minUptime 1000 --spinSleepTime 1000 app/index.js",
+    "debugWorker": "forever -w -m 5 --minUptime 1000 --spinSleepTime 1000 app/worker.js",
+    "lint": "standard --verbose | snazzy"
+  },
+  "devDependencies": {
+    "snazzy": "^7.1.1",
+    "standard": "^11.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "colour-proximity": "^0.0.2",
+    "datalib": "^1.8.0",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.2",
+    "forever": "^0.15.3",
+    "kue": "^0.11.6",
+    "mongoose": "^5.0.8",
+    "rgb-hex": "^2.1.0"
+  }
+}

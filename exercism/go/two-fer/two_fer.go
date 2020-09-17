@@ -1,10 +1,9 @@
-// Package twofer should have a package comment that summarizes what it's about.
-// https://golang.org/doc/effective_go.html#commentary
+// Package twofer implements a very interesting function
 package twofer
 
 import "fmt"
 
-// ShareWith should have a comment documenting it.
+// Given a name, return a string with the message
 func ShareWith(name string) string {
 	if name == "" {
 		name = "you"

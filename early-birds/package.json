@@ -6,9 +6,6 @@
   "author": "Adrian Tombu <adrian@otso.fr> (https://otso.fr)",
   "license": "UNLICENSED",
   "main": "app/index.js",
-  "engines": {
-    "node": "8.x"
-  },
   "scripts": {
     "start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/index.js",
     "worker": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/worker.js",

@@ -3,7 +3,7 @@ package twofer
 
 import "fmt"
 
-// Given a name, return a string with the message
+// ShareWith returns a string with a message depending of a name
 func ShareWith(name string) string {
 	if name == "" {
 		name = "you"

@@ -1,20 +1,20 @@
-// The package hamming compares two DNA strands
+// Package hamming compares two DNA strands.
 package hamming
 
-import (
-	"errors"
-)
+import "errors"
 
-// Calculate the Hamming Distance between two DNA strands
+// Distance calculates the Hamming distance between two DNA strands
 func Distance(a, b string) (int, error) {
 	if len(a) != len(b) {
-		return -1, errors.New("Strings don't have matching sizes")
+		return 0, errors.New("strings don't have matching sizes")
 	}
 
 	dist := 0
+	aRune := []rune(a)
+	bRune := []rune(b)
 
-	for i := range a {
-		if a[i] != b[i] {
+	for i := range aRune {
+		if aRune[i] != bRune[i] {
 			dist++
 		}
 	}

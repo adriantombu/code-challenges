@@ -7,7 +7,7 @@ import (
 
 // IsIsogram checks if a string has no duplicate letters
 func IsIsogram(input string) bool {
-	values := map[rune]int{}
+	values := map[rune]bool{}
 	input = strings.ToLower(input)
 
 	for _, letter := range input {
@@ -15,11 +15,11 @@ func IsIsogram(input string) bool {
 			continue
 		}
 
-		if _, ok := values[letter]; ok {
+		if values[letter] {
 			return false
 		}
 
-		values[letter] = 1
+		values[letter] = true
 	}
 
 	return true

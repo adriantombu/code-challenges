@@ -15,16 +15,16 @@ func Valid(input string) bool {
 		return false
 	}
 
-	parity := nDigits % 2
+	parity := nDigits%2 == 0
 	sum := 0
 
-	for i, r := range input {
+	for _, r := range input {
 		digit, err := strconv.Atoi(string(r))
 		if err != nil {
 			return false
 		}
 
-		if i%2 == parity {
+		if parity {
 			digit *= 2
 		}
 
@@ -33,6 +33,7 @@ func Valid(input string) bool {
 		}
 
 		sum += digit
+		parity = !parity
 	}
 
 	return sum%10 == 0

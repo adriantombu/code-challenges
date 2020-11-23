@@ -10,21 +10,21 @@ import (
 // Valid checks if the number is valid per the Luhn Formula
 func Valid(input string) bool {
 	input = strings.ReplaceAll(input, " ", "")
-	if len(input) < 2 {
+	nDigits := len(input)
+	if nDigits < 2 {
 		return false
 	}
 
-	nDigits := len(input)
-	parity := nDigits%2 == 0
+	parity := nDigits % 2
 	sum := 0
 
-	for _, r := range input {
+	for i, r := range input {
 		digit, err := strconv.Atoi(string(r))
 		if err != nil {
 			return false
 		}
 
-		if parity {
+		if i%2 == parity {
 			digit *= 2
 		}
 
@@ -32,7 +32,6 @@ func Valid(input string) bool {
 			digit -= 9
 		}
 
-		parity = !parity
 		sum += digit
 	}
 

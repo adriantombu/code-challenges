@@ -43,8 +43,6 @@ func RunLengthEncode(input string) string {
 
 // RunLengthDecode decodes run-length encoded string
 func RunLengthDecode(input string) string {
-	//https://stackabuse.com/run-length-encoding/
-
 	res := ""
 	count := 0
 

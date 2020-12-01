@@ -16,7 +16,7 @@ func Frequency(s string) FreqMap {
 // ConcurrentFrequency counts the frequency of letters in texts using parallel
 // computation and returns data as FreqMap
 func ConcurrentFrequency(texts []string) FreqMap {
-	c := make(chan FreqMap, 2)
+	c := make(chan FreqMap, 10)
 
 	for _, text := range texts {
 		go func(text string) {

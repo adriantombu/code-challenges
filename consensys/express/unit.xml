@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.0300" tests="4" failures="0">
+  <testsuite name="Root Suite" timestamp="2020-12-04T14:54:54" tests="0" time="0.0000" failures="0">
+  </testsuite>
+  <testsuite name="express_basics" timestamp="2020-12-04T14:54:54" tests="4" file="/Users/adrian/Sites/code-challenges/hackerrank/b63bd71b-4f00-4815-94a7-43bf6bd35dd1/test/index.spec.js" time="0.0300" failures="0">
+    <testcase name="express_basics Should return 200 for /projects" time="0.0190" classname="Should return 200 for /projects">
+    </testcase>
+    <testcase name="express_basics Should return 200 for /projects/active" time="0.0020" classname="Should return 200 for /projects/active">
+    </testcase>
+    <testcase name="express_basics Should return a 404 if the requested id is not present in data" time="0.0020" classname="Should return a 404 if the requested id is not present in data">
+    </testcase>
+    <testcase name="express_basics Should return the correct data with status 200" time="0.0070" classname="Should return the correct data with status 200">
+    </testcase>
+  </testsuite>
+</testsuites>

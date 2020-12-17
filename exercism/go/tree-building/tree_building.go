@@ -17,21 +17,21 @@ type Node struct {
 	Children []*Node
 }
 
-// Build is a great tree function, the best, not like those other fake functions
+// Build creates a tree of related records from a flat list of records
 func Build(records []Record) (*Node, error) {
 	sort.Slice(records, func(i, j int) bool {
 		return records[i].ID < records[j].ID
 	})
 
 	nodes := map[int]*Node{}
-	for i, record := range records {
-		if record.ID != i || record.ID == 0 && record.Parent != 0 || record.ID != 0 && record.Parent >= record.ID {
-			return nil, fmt.Errorf("id mismatch")
+	for i, r := range records {
+		if r.ID != i || r.Parent > r.ID || r.ID > 0 && r.Parent == r.ID {
+			return nil, fmt.Errorf("id mismatch on record %v", r)
 		}
 
-		nodes[record.ID] = &Node{record.ID, nil}
-		if record.ID != 0 {
-			nodes[record.Parent].Children = append(nodes[record.Parent].Children, nodes[record.ID])
+		nodes[r.ID] = &Node{r.ID, nil}
+		if r.ID != 0 {
+			nodes[r.Parent].Children = append(nodes[r.Parent].Children, nodes[r.ID])
 		}
 	}
 

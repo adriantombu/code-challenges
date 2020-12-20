@@ -1,6 +1,7 @@
 package robotname
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -9,6 +10,7 @@ var random = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 // numbers holds all of the existing robots names to avoid duplicates
 var numbers = map[string]bool{}
+var maxNumbers = 26 * 26 * 10 * 10 * 10
 
 // Robot holds the identifier of a robot
 type Robot struct {
@@ -19,6 +21,10 @@ type Robot struct {
 func (r *Robot) Name() (string, error) {
 	if r.ID != "" {
 		return r.ID, nil
+	}
+
+	if len(numbers) >= maxNumbers {
+		return "", fmt.Errorf("no more names available")
 	}
 
 	r.ID = newID()
@@ -32,22 +38,12 @@ func (r *Robot) Name() (string, error) {
 
 // Reset restores the Robot to factory settings and resets his name
 func (r *Robot) Reset() {
-	delete(numbers, r.ID)
 	r.ID = ""
 }
 
 func newID() string {
-	return randomLetter() + randomLetter() + randomNumber() + randomNumber() + randomNumber()
-}
-
-func randomLetter() string {
-	return randomString(65, 90)
-}
-
-func randomNumber() string {
-	return randomString(48, 57)
-}
-
-func randomString(min, max int) string {
-	return string(rune(random.Intn(max-min+1) + min))
+	r1 := random.Intn(26) + 'A'
+	r2 := random.Intn(26) + 'A'
+	num := random.Intn(1000)
+	return fmt.Sprintf("%c%c%03d", r1, r2, num)
 }

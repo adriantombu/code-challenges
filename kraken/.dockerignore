@@ -1,0 +1,9 @@
+*
+!data/
+!src/
+!.dockerignore
+!docker-compose.yml
+!Dockerfile
+!package.json
+!tsconfig.json
+!yarn.lock

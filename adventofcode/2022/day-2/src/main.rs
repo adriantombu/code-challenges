@@ -10,57 +10,33 @@ fn main() {
 }
 
 fn part_one(data: &str) {
-    let data = data.replace('X', "A").replace('Y', "B").replace('Z', "C");
-
-    let games = data
-        .lines()
-        .map(|game| {
-            let chars = game.chars().collect::<Vec<char>>();
-            let other: Shape = chars[0].into();
-            let me: Shape = chars[2].into();
-
-            (other, me)
-        })
-        .collect::<Vec<_>>();
-
     println!("Part one");
-    get_score(&games);
+
+    let get_me = |ch: char, _: Shape| -> Shape { ch.into() };
+    get_score(data, get_me);
 }
 
 fn part_two(data: &str) {
-    let games = data
-        .lines()
-        .map(|game| {
-            let chars = game.chars().collect::<Vec<char>>();
-            let other: Shape = chars[0].into();
-
-            let me = match (other, chars[2]) {
-                (Shape::Rock, 'X') | (Shape::Paper, 'Z') => Shape::Scissors,
-                (Shape::Rock, 'Z') | (Shape::Scissors, 'X') => Shape::Paper,
-                (Shape::Paper, 'X') | (Shape::Scissors, 'Z') => Shape::Rock,
-                (shape, 'Y') => shape,
-                _ => panic!("Character ouf of bounds"),
-            };
-
-            (other, me)
-        })
-        .collect::<Vec<_>>();
-
     println!("\nPart two");
-    get_score(&games);
+
+    let get_me = |ch: char, other: Shape| -> Shape { Shape::shape_from_action(&other, &ch.into()) };
+    get_score(data, get_me);
 }
 
-fn get_score(games: &[(Shape, Shape)]) {
-    let mut them_score: usize = 0;
-    let mut me_score: usize = 0;
+fn get_score(data: &str, get_me: fn(char, Shape) -> Shape) {
+    let mut other_score: usize = 0;
+    let mut my_score: usize = 0;
 
-    games.iter().for_each(|(them, me)| {
-        let (them_game, me_game) = Game::new(*them, *me).score();
+    data.lines().for_each(|game| {
+        let chars = game.chars().collect::<Vec<char>>();
+        let other: Shape = chars[0].into();
+        let me = get_me(chars[2], other);
+        let (other_game, my_game) = Game::new(other, me).score();
 
-        them_score += them_game;
-        me_score += me_game;
+        other_score += other_game;
+        my_score += my_game;
     });
 
-    println!("- their total score: {}", them_score); // 9939, 11178
-    println!("- my total score: {}", me_score); // 14827, 13889
+    println!("- their total score: {}", other_score); // 9939, 11178
+    println!("- my total score: {}", my_score); // 14827, 13889
 }

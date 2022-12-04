@@ -7,12 +7,23 @@ pub enum Shape {
     Scissors,
 }
 
+impl Shape {
+    pub fn shape_from_action(other: &Shape, action: &Action) -> Self {
+        match (other, action) {
+            (Shape::Rock, Action::Lose) | (Shape::Paper, Action::Win) => Shape::Scissors,
+            (Shape::Rock, Action::Win) | (Shape::Scissors, Action::Lose) => Shape::Paper,
+            (Shape::Paper, Action::Lose) | (Shape::Scissors, Action::Win) => Shape::Rock,
+            (shape, _) => *shape,
+        }
+    }
+}
+
 impl From<char> for Shape {
     fn from(item: char) -> Self {
         match item {
-            'A' => Shape::Rock,
-            'B' => Shape::Paper,
-            'C' => Shape::Scissors,
+            'A' | 'X' => Shape::Rock,
+            'B' | 'Y' => Shape::Paper,
+            'C' | 'Z' => Shape::Scissors,
             _ => panic!("Character out of bounds"),
         }
     }
@@ -44,6 +55,24 @@ impl AddAssign<Score> for usize {
 }
 
 #[derive(Debug)]
+pub enum Action {
+    Lose,
+    Draw,
+    Win,
+}
+
+impl From<char> for Action {
+    fn from(item: char) -> Self {
+        match item {
+            'X' => Action::Lose,
+            'Y' => Action::Draw,
+            'Z' => Action::Win,
+            _ => panic!("Character out of bounds"),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Game {
     them: Shape,
     me: Shape,
@@ -55,22 +84,22 @@ impl Game {
     }
 
     pub fn score(&self) -> (usize, usize) {
-        let mut them_game: usize = self.them.into();
-        let mut me_game: usize = self.me.into();
+        let mut other_game: usize = self.them.into();
+        let mut my_game: usize = self.me.into();
 
         match (self.them, self.me) {
             (Shape::Rock, Shape::Scissors)
             | (Shape::Scissors, Shape::Paper)
-            | (Shape::Paper, Shape::Rock) => them_game += Score::Win,
+            | (Shape::Paper, Shape::Rock) => other_game += Score::Win,
             (Shape::Scissors, Shape::Rock)
             | (Shape::Paper, Shape::Scissors)
-            | (Shape::Rock, Shape::Paper) => me_game += Score::Win,
+            | (Shape::Rock, Shape::Paper) => my_game += Score::Win,
             (_, _) => {
-                them_game += Score::Draw;
-                me_game += Score::Draw;
+                other_game += Score::Draw;
+                my_game += Score::Draw;
             }
         };
 
-        (them_game, me_game)
+        (other_game, my_game)
     }
 }

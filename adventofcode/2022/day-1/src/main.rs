@@ -1,6 +1,6 @@
 // https://adventofcode.com/2022/day/1
 fn main() {
-    let mut calories = include_str!("calories.txt")
+    let mut calories = include_str!("input.txt")
         .split("\n\n")
         .collect::<Vec<_>>()
         .iter()

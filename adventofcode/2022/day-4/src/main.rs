@@ -9,7 +9,7 @@ fn main() {
 }
 
 fn part_one(data: &str) {
-    let filter = |teams: Vec<HashSet<usize>>| {
+    let filter = |teams: &Vec<HashSet<usize>>| {
         teams[0].union(&teams[1]).count() == teams[0].len()
             || teams[1].union(&teams[0]).count() == teams[1].len()
     };
@@ -19,18 +19,16 @@ fn part_one(data: &str) {
 }
 
 fn part_two(data: &str) {
-    let filter = |teams: Vec<HashSet<usize>>| teams[0].intersection(&teams[1]).count() > 0;
+    let filter = |teams: &Vec<HashSet<usize>>| teams[0].intersection(&teams[1]).count() > 0;
     let total = sum(data, filter);
 
     println!("total {:?}", total); // 933
 }
 
-fn sum(data: &str, filter: fn(Vec<HashSet<usize>>) -> bool) -> usize {
+fn sum(data: &str, filter: fn(&Vec<HashSet<usize>>) -> bool) -> usize {
     data.lines()
         .map(|l| {
-            let teams = l
-                .split(',')
-                .into_iter()
+            l.split(',')
                 .map(|team| {
                     let res = team.split('-').collect::<Vec<_>>();
                     let start = res[0].parse::<usize>().unwrap();
@@ -38,9 +36,8 @@ fn sum(data: &str, filter: fn(Vec<HashSet<usize>>) -> bool) -> usize {
 
                     (start..=end).collect::<HashSet<usize>>()
                 })
-                .collect::<Vec<_>>();
-
-            usize::from(filter(teams))
+                .collect::<Vec<_>>()
         })
-        .sum()
+        .filter(filter)
+        .count()
 }

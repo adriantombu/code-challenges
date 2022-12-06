@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+// https://adventofcode.com/2022/day/3
 fn main() {
     let data = include_str!("input.txt");
 

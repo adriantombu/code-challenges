@@ -2,6 +2,7 @@ use crate::types::{Game, Shape};
 
 mod types;
 
+// https://adventofcode.com/2022/day/2
 fn main() {
     let data = include_str!("input.txt");
 

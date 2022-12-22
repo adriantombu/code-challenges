@@ -1,8 +1,9 @@
-// TODO: remove unwraps
 use std::collections::HashSet;
+use thiserror::Error;
 
 /// Implementation of the Playfair cipher
 /// More info here : https://en.wikipedia.org/wiki/Playfair_cipher
+#[derive(Debug)]
 pub struct Playfair {
     key: String,
     options: Options,
@@ -37,23 +38,29 @@ impl Playfair {
         }
     }
 
-    pub fn cipher(&self, message: &str) -> String {
-        let normalized_input = self.sanitize_message(message);
+    pub fn cipher(&self, message: &str) -> Result<String, PlayfairError> {
+        let normalized_input = self.sanitize_message(message)?;
         let chars = normalized_input.chars().collect::<Vec<_>>();
-        let cipher_chars = self.key.chars().collect::<Vec<_>>();
+        let key_chars = self.key.chars().collect::<Vec<_>>();
 
         let mut ciphered = vec![];
         for chunk in chars.chunks(2) {
+            let chunk_first = chunk
+                .first()
+                .ok_or_else(|| PlayfairError::ValueNotFoundAtIndice(0))?;
+            let chunk_last = chunk
+                .last()
+                .ok_or_else(|| PlayfairError::ValueNotFoundAtIndice(1))?;
             let first_indice = &self
                 .key
                 .chars()
-                .position(|c| &c == chunk.first().unwrap())
-                .unwrap();
+                .position(|c| &c == chunk_first)
+                .ok_or(PlayfairError::IndiceNotFoundForValue(*chunk_first))?;
             let last_indice = &self
                 .key
                 .chars()
-                .position(|c| &c == chunk.last().unwrap())
-                .unwrap();
+                .position(|c| &c == chunk_last)
+                .ok_or(PlayfairError::IndiceNotFoundForValue(*chunk_last))?;
 
             let mut new_first = 0;
             let mut new_last = 0;
@@ -85,21 +92,21 @@ impl Playfair {
 
             let result = format!(
                 "{}{}",
-                cipher_chars.get(new_first).unwrap(),
-                cipher_chars.get(new_last).unwrap()
+                key_chars
+                    .get(new_first)
+                    .ok_or(PlayfairError::ValueNotFoundAtIndice(new_first))?,
+                key_chars
+                    .get(new_last)
+                    .ok_or(PlayfairError::ValueNotFoundAtIndice(new_last))?
             );
 
             ciphered.push(result);
         }
 
-        ciphered.join(" ")
+        Ok(ciphered.join(" "))
     }
 
-    pub fn decipher(&self, message: &str) -> String {
-        message.to_string()
-    }
-
-    fn sanitize_message(&self, message: &str) -> String {
+    fn sanitize_message(&self, message: &str) -> Result<String, PlayfairError> {
         // Remove punctuation, number and whitespaces
         let chars = message
             .chars()
@@ -111,7 +118,9 @@ impl Playfair {
 
         let mut normalized_input = vec![];
         for digram in chars.chunks(2) {
-            let first = digram.first().unwrap();
+            let first = digram
+                .first()
+                .ok_or_else(|| PlayfairError::ValueNotFoundAtIndice(0))?;
             let last = digram.get(1).unwrap_or(&' ');
 
             normalized_input.push(first);
@@ -132,7 +141,7 @@ impl Playfair {
             normalized_input.push(self.options.filler);
         }
 
-        normalized_input
+        Ok(normalized_input)
     }
 
     fn is_in_row(&self, first: &usize, last: &usize) -> bool {
@@ -148,6 +157,7 @@ impl Playfair {
     }
 }
 
+#[derive(Debug)]
 pub struct Options {
     alphabet: String,
     filler: char,
@@ -158,15 +168,11 @@ impl Options {
         self.filler = filler;
     }
 
-    pub fn set_alphabet(&mut self, alphabet: &str) -> Result<(), String> {
+    pub fn set_alphabet(&mut self, alphabet: &str) -> Result<(), PlayfairError> {
         let letters = alphabet.chars().collect::<HashSet<_>>();
 
         if letters.len() != 25 {
-            return Err(format!(
-                "Alphabet must be composed of 25 different letters, {} provided for {:?}",
-                letters.len(),
-                letters
-            ));
+            return Err(PlayfairError::AlphabetLength(letters.len(), letters));
         }
 
         self.alphabet = alphabet.to_string();
@@ -183,6 +189,18 @@ impl Default for Options {
             filler: 'X',
         }
     }
+}
+
+#[derive(Error, Debug)]
+pub enum PlayfairError {
+    #[error("No value found for indice {0}")]
+    ValueNotFoundAtIndice(usize),
+
+    #[error("Position not found for value {0}")]
+    IndiceNotFoundForValue(char),
+
+    #[error("Alphabet must be composed of 25 different letters, {0} provided for {1:?}")]
+    AlphabetLength(usize, HashSet<char>),
 }
 
 #[cfg(test)]
@@ -230,16 +248,18 @@ mod tests {
         let pf = Playfair::new("playfair example", Options::default());
 
         assert_eq!(
-            pf.sanitize_message("Hide the gold in the tree stump"),
+            pf.sanitize_message("Hide the gold in the tree stump")
+                .unwrap(),
             "HIDETHEGOLDINTHETREXESTUMP"
         );
         assert_eq!(
-            pf.sanitize_message("Cache l'or dans la souche de l'arbre"),
+            pf.sanitize_message("Cache l'or dans la souche de l'arbre")
+                .unwrap(),
             "CACHELORDANSLASOUCHEDELARBRE"
         );
-        assert_eq!(pf.sanitize_message("Hello"), "HELXLO");
-        assert_eq!(pf.sanitize_message("Hey!"), "HEYX");
-        assert_eq!(pf.sanitize_message("letter"), "LETXTERX");
+        assert_eq!(pf.sanitize_message("Hello").unwrap(), "HELXLO");
+        assert_eq!(pf.sanitize_message("Hey!").unwrap(), "HEYX");
+        assert_eq!(pf.sanitize_message("letter").unwrap(), "LETXTERX");
     }
 
     #[test]
@@ -247,7 +267,8 @@ mod tests {
     fn test_cipher_english() {
         assert_eq!(
             Playfair::new("playfair example", Options::default())
-                .cipher("hide the gold in the tree stump"),
+                .cipher("hide the gold in the tree stump")
+                .unwrap(),
             "BM OD ZB XD NA BE KU DM UI XM MO UV IF"
         );
     }
@@ -262,7 +283,8 @@ mod tests {
 
         assert_eq!(
             Playfair::new("exemple playfair", options)
-                .cipher("Cache l'or dans la souche de l'arbre"),
+                .cipher("Cache l'or dans la souche de l'arbre")
+                .unwrap(),
             "BY DB XE QI BF JU ER VJ TD BL BM ER AH AL"
         );
     }
@@ -272,7 +294,8 @@ mod tests {
     fn test_cipher_italian() {
         assert_eq!(
             Playfair::new("esempio playfair", Options::default())
-                .cipher("Le truppe sbarcheranno a Bari"),
+                .cipher("Le truppe sbarcheranno a Bari")
+                .unwrap(),
             "OS HG XE IS LK OC RN OH CW HA LC OC PZ"
         );
     }
@@ -282,7 +305,8 @@ mod tests {
     fn test_cipher_nederlands() {
         assert_eq!(
             Playfair::new("stalingrad", Options::default())
-                .cipher("Dit is een zeerge heimbericht."),
+                .cipher("Dit is een zeerge heimbericht.")
+                .unwrap(),
             "BL AS TC CG WK FG EO KF SU GK BA EK AW"
         );
     }
@@ -291,7 +315,9 @@ mod tests {
     // Test from https://planetcalc.com/7751/
     fn test_cipher_planetcalc() {
         assert_eq!(
-            Playfair::new("Gravity Falls", Options::default()).cipher("Attack at dawn"),
+            Playfair::new("Gravity Falls", Options::default())
+                .cipher("Attack at dawn")
+                .unwrap(),
             "GF FG BM GF NF AW"
         );
     }

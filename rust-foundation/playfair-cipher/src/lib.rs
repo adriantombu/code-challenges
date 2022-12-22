@@ -39,6 +39,7 @@ impl Playfair {
         let chars = normalized_input.chars().collect::<Vec<_>>();
         let cipher_chars = self.0.chars().collect::<Vec<_>>();
 
+        let mut ciphered = vec![];
         let mut i = 1;
         for chunk in chars.chunks(2) {
             let first_indice = &self
@@ -55,9 +56,6 @@ impl Playfair {
             let start_row_position = first_indice % 5;
             let end_row_position = last_indice % 5;
             let row_position_difference = start_row_position.abs_diff(end_row_position);
-            // let start_column_position = start_indice / 5;
-            // let end_column_position = end_indice / 5;
-            // let column_position_difference = start_column_position.abs_diff(end_column_position);
 
             println!(
                 "{i}. chunk {chunk:?} - first_indice {first_indice} - last_indice {last_indice}"
@@ -66,33 +64,45 @@ impl Playfair {
             println!(
                 "start_row_position {start_row_position} - end_row_position {end_row_position} - row_position_difference {row_position_difference}"
             );
-            // println!("start_column_position {start_column_position} - end_column_position {end_column_position} - column_position_difference {column_position_difference}");
 
             let mut new_first = 0;
             let mut new_last = 0;
             if self.is_in_row(first_indice, last_indice) {
                 println!("is in row");
+
+                new_first = first_indice + 1;
+                if new_first / 5 != first_indice / 5 {
+                    new_first -= 5;
+                }
+
+                new_last = last_indice + 1;
+                if new_last / 5 != last_indice / 5 {
+                    new_last -= 5;
+                }
             } else if self.is_in_column(first_indice, last_indice) {
                 println!("is in column");
+
+                new_first = first_indice + 5;
+                if new_first > 24 {
+                    new_first -= 24;
+                }
+
+                new_last = last_indice + 5;
+                if new_last > 24 {
+                    new_last -= 24;
+                }
             } else if self.is_in_rectangle(first_indice, last_indice) {
                 println!("is in rectangle");
 
-                // 7. The pair NT forms a rectangle, replace it with KU
-                // My answer is OS for some reason ? (all the other rectangle are OK)
-                if first_indice > last_indice && first_indice % 5 > last_indice % 5 {
-                    new_first = first_indice - row_position_difference;
-                    new_last = last_indice + row_position_difference;
-                } else {
-                    new_first = first_indice + row_position_difference;
-                    new_last = last_indice - row_position_difference;
-                }
+                // Stay in the same row but switch the positions in row between the two values
+                new_first = last_indice % 5 + (first_indice / 5 * 5);
+                new_last = first_indice % 5 + (last_indice / 5 * 5);
             } else {
                 eprintln!("error");
             }
 
             println!("new_first {new_first} - new_last {new_last}");
 
-            println!("chars {chars:?}");
             let result = format!(
                 "{}{}",
                 cipher_chars.get(new_first).unwrap(),
@@ -102,10 +112,16 @@ impl Playfair {
             println!("chunk result : {result}");
             println!("----------");
 
+            ciphered.push(result);
+
             i += 1;
         }
 
-        normalized_input
+        ciphered.join(" ")
+    }
+
+    pub fn decipher(&self, message: &str) -> String {
+        message.to_string()
     }
 
     fn normalize_message(message: &str) -> String {
@@ -154,47 +170,39 @@ impl Playfair {
     fn is_in_rectangle(&self, first: &usize, last: &usize) -> bool {
         !self.is_in_row(first, last) && !self.is_in_column(first, last)
     }
-
-    pub fn decipher(&self, message: &str) -> String {
-        message.to_string()
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    // #[test]
-    // fn test_new() {
-    //     let pf = Playfair::new("playfair example");
-    //
-    //     assert_eq!(pf.0, "PLAYFIREXMBCDGHKNOQSTUVWZ");
-    // }
+    #[test]
+    fn test_new() {
+        let pf = Playfair::new("playfair example");
 
-    // #[test]
-    // fn test_normalize_message() {
-    //     assert_eq!(
-    //         Playfair::normalize_message("Hide the gold in the tree stump"),
-    //         "HIDETHEGOLDINTHETREXESTUMP"
-    //     );
-    //     assert_eq!(Playfair::normalize_message("Hello"), "HELXLO");
-    //     assert_eq!(Playfair::normalize_message("Hey!"), "HEYX");
-    //     assert_eq!(Playfair::normalize_message("letter"), "LETXTERX");
-    // }
+        assert_eq!(pf.0, "PLAYFIREXMBCDGHKNOQSTUVWZ");
+    }
+
+    #[test]
+    fn test_normalize_message() {
+        assert_eq!(
+            Playfair::normalize_message("Hide the gold in the tree stump"),
+            "HIDETHEGOLDINTHETREXESTUMP"
+        );
+        assert_eq!(
+            Playfair::normalize_message("Cache l'or dans la souche de l'arbre"),
+            "CACHELORDANSLASOUCHEDELARBRE"
+        );
+        assert_eq!(Playfair::normalize_message("Hello"), "HELXLO");
+        assert_eq!(Playfair::normalize_message("Hey!"), "HEYX");
+        assert_eq!(Playfair::normalize_message("letter"), "LETXTERX");
+    }
 
     #[test]
     fn test_cipher_english() {
-        let pf = Playfair::new("playfair example");
-        let e = pf.cipher("hide the gold in the tree stump");
-
-        assert_eq!(e.len(), 26);
+        assert_eq!(
+            Playfair::new("playfair example").cipher("hide the gold in the tree stump"),
+            "BM OD ZB XD NA BE KU DM UI XM MO UV IF"
+        );
     }
-
-    // #[test]
-    // fn test_cipher_french() {
-    //     let pf = Playfair::new("exemple playfair");
-    //     let e = pf.cipher("Cache l'or dans la souche de l'arbre");
-    //
-    //     assert_eq!(e.len(), 28);
-    // }
 }
